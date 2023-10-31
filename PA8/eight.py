@@ -242,8 +242,8 @@ def tiles_out_of_row_column(puzzle):
             wrongRow += 1
         if get_tile_column(puzzle.state[i]) != get_tile_column(i):
             wrongColumn += 1
-        ##print(puzzle.state[i], "WrongRow: ", wrongRow, "WrongCol: ", wrongColumn)
-    ##print("total: ", wrongRow + wrongColumn)
+        #print(puzzle.state[i], "WrongRow: ", wrongRow, "WrongCol: ", wrongColumn)
+    #print("total: ", wrongRow + wrongColumn)
     return wrongRow + wrongColumn
     ######## TASK 1.4.1 END   ##########
 
@@ -269,6 +269,29 @@ def manhattan_distance_to_goal(puzzle):
     
     ######## TASK 1.4.2 END   ##########  
 
+def test_cases():
+        testCases = [
+            {'state': [0, 1, 2, 3, 4, 5, 6, 7, 8], 'tiles_out_of_row_column': 0, 'manhattan_distance': 0},  # Goal state
+            {'state': [1, 2, 3, 4, 5, 6, 7, 8, 0], 'tiles_out_of_row_column': 10, 'manhattan_distance': 12},  # Reverse state
+            {'state': [1, 0, 2, 3, 4, 5, 6, 7, 8], 'tiles_out_of_row_column': 1, 'manhattan_distance': 1},  # One tile out
+            {'state': [8, 4, 2, 1, 7, 3, 6, 0, 5], 'tiles_out_of_row_column': 8, 'manhattan_distance': 11}, # Random
+            # Add more test cases as needed
+        ]
+        
+        for i, testCase in enumerate(testCases):
+            puzzle = Puzzle(testCase['state'])
+            
+            numTiles = tiles_out_of_row_column(puzzle)
+            mDist = manhattan_distance_to_goal(puzzle)
+            #print("Tiles out row col: ", tiles_out_of_row_column(puzzle))
+            #print("Manhattan Dist Result: ", manhattan_distance_to_goal(puzzle))
+            string1 = f"Test case {i+1} failed for tiles_out_of_row_column"
+            string2 = f"Test case {i+1} failed for manhattan_distance"
+            assert numTiles == testCase['tiles_out_of_row_column'], string1
+            assert mDist == testCase['manhattan_distance'], string2
+            
+            
+            print(f"Test case {i+1} passed")
     
 def get_tile_row(tile):
     """
@@ -460,30 +483,6 @@ def getOptions(args=sys.argv[1:]):
     options = parser.parse_args(args)
     return options
 
-def test_heuristics():
-        # Test cases with known heuristic values
-        test_cases = [
-            {'state': [0, 1, 2, 3, 4, 5, 6, 7, 8], 'tiles_out_of_row_column': 0, 'manhattan_distance': 0},  # Goal state
-            {'state': [1, 2, 3, 4, 5, 6, 7, 8, 0], 'tiles_out_of_row_column': 10, 'manhattan_distance': 12},  # Reverse state
-            {'state': [1, 0, 2, 3, 4, 5, 6, 7, 8], 'tiles_out_of_row_column': 1, 'manhattan_distance': 1},  # One tile out
-            # Add more test cases as needed
-        ]
-        
-        for i, test_case in enumerate(test_cases):
-            puzzle = Puzzle(test_case['state'])
-            
-            tiles_out_row_col_result = tiles_out_of_row_column(puzzle)
-            manhattan_distance_result = manhattan_distance_to_goal(puzzle)
-            print("Tiles out row col: ", tiles_out_of_row_column(puzzle))
-            print("Manhattan Dist Result: ", manhattan_distance_to_goal(puzzle))
-            string1 = f"Test case {i+1} failed for tiles_out_of_row_column"
-            string2 = f"Test case {i+1} failed for manhattan_distance"
-            assert tiles_out_row_col_result == test_case['tiles_out_of_row_column'], string1
-            assert manhattan_distance_result == test_case['manhattan_distance'], string2
-            
-            
-            print(f"Test case {i+1} passed")
-
 if __name__ == '__main__':
 
     #Get command line options
@@ -566,7 +565,7 @@ if __name__ == '__main__':
         print('A puzzle was not solved.  This means you haven\'t correctly implemented something. Please double check your code and try again.')
     
     
-    test_heuristics()
+    test_cases()
 
 
 
