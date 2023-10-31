@@ -304,10 +304,11 @@ def get_tile_column(tile):
     Return the column of the given tile location (Helper function for you to use)
     """
     return tile % 3    
-def run_iterative_search(start_node):
-    """
-    This runs an IDA* search
-    """
+
+"""def run_iterative_search(start_node):
+    
+    ##THIS ENTIRE BLOCK OF COMMENTED CODE CONTAINS THE FUNCTIONALITY FOR IDA* (you have to change which functions are commented)
+    
     # Initialize the threshold to the heuristic value of the start node
     threshold = start_node.h
     
@@ -374,8 +375,9 @@ def run_dfs(node, threshold, visited):
         node.path = node.path[0:-1]
         node.cost = node.cost - 1
     
-    return None, min_threshold 
-"""def run_iterative_search(start_node):
+    return None, min_threshold """
+
+def run_iterative_search(start_node):
   
     ##This runs an iterative deepening search
     ##It caps the depth of the search at 40 (no 8-puzzles have solutions this long)
@@ -480,7 +482,7 @@ def run_dfs(node, depth_limit, visited):
     
     #Couldn't find a solution here or at any of my successors, so return None
     #This node is not on a solution path under the depth-limit
-    return None"""
+    return None
         
 def run_best_first_search(fringe, options):
     """
