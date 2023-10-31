@@ -3,7 +3,7 @@ from queue import Queue
 import sys
 import math
 import random
-from pa1 import *
+from eight import *
 
 def breadth_first(depth,pq,visited,of,maxnum):
     num_saved = 0
