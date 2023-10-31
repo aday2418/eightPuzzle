@@ -304,12 +304,82 @@ def get_tile_column(tile):
     Return the column of the given tile location (Helper function for you to use)
     """
     return tile % 3    
-    
 def run_iterative_search(start_node):
     """
-    This runs an iterative deepening search
-    It caps the depth of the search at 40 (no 8-puzzles have solutions this long)
+    This runs an IDA* search
     """
+    # Initialize the threshold to the heuristic value of the start node
+    threshold = start_node.h
+    
+    # Keep track of the total number of nodes expanded
+    total_expanded = 0
+    
+    while True:
+        visited = dict()
+        visited['N'] = 0
+        visited[start_node.puzzle.id()] = True
+        
+        # Run depth-limited search starting at the initial node
+        path_length, new_threshold = run_dfs(start_node, threshold, visited)
+        
+        total_expanded += visited['N']
+        
+        if path_length is not None:
+            print('Expanded ', total_expanded, 'nodes')
+            print('IDA* Found solution')
+            return total_expanded, path_length
+        
+        if new_threshold == float('inf'):
+            return None, None
+        
+        threshold = new_threshold
+
+def run_dfs(node, threshold, visited):
+    visited['N'] = visited['N'] + 1
+    
+    f_value = node.cost + node.h
+    
+    if f_value > threshold:
+        return None, f_value
+    
+    if node.puzzle.is_solved():
+        print('IDA* SOLVED THE PUZZLE! SOLUTION = ', node.path)
+        return len(node.path), None
+    
+    min_threshold = float('inf')
+    
+    moves = node.puzzle.get_moves()
+    
+    for m in moves:
+        node.puzzle.do_move(m)
+        node.compute_f_value()
+        
+        node.path = node.path + m
+        node.cost = node.cost + 1
+        
+        if node.puzzle.id() not in visited:
+            visited[node.puzzle.id()] = True
+            
+            path_length, new_threshold = run_dfs(node, threshold, visited)
+            
+            if path_length is not None:
+                return path_length, None
+            
+            if new_threshold < min_threshold:
+                min_threshold = new_threshold
+            
+            del visited[node.puzzle.id()]
+        
+        node.puzzle.undo_move(m)
+        node.path = node.path[0:-1]
+        node.cost = node.cost - 1
+    
+    return None, min_threshold 
+"""def run_iterative_search(start_node):
+  
+    ##This runs an iterative deepening search
+    ##It caps the depth of the search at 40 (no 8-puzzles have solutions this long)
+ 
     #Our initial depth limit
     depth_limit = 1
     
@@ -349,12 +419,12 @@ def run_iterative_search(start_node):
     return None, None
     
 def run_dfs(node, depth_limit, visited):
-    """
-    Recursive Depth-Limited Search:  
+   
+    ##Recursive Depth-Limited Search:  
     
-    Check node to see if it is goal, if it is, print solution and return path length
-    If not and if depth-limit hasn't been reached, recurse on all children
-    """
+    ##Check node to see if it is goal, if it is, print solution and return path length
+    ##If not and if depth-limit hasn't been reached, recurse on all children
+
     visited['N'] = visited['N'] + 1 #Increment our node expansion counter
 
     # Check to see if this is a goal node
@@ -410,7 +480,7 @@ def run_dfs(node, depth_limit, visited):
     
     #Couldn't find a solution here or at any of my successors, so return None
     #This node is not on a solution path under the depth-limit
-    return None
+    return None"""
         
 def run_best_first_search(fringe, options):
     """
