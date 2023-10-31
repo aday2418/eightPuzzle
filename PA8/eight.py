@@ -168,10 +168,13 @@ class SearchNode():
         elif self.options.type == 'u':
             #uniform cost search algorithm
             self.f_value = self.cost # Change this to implement uniform cost search!
+            print("cost: ", self.f_value)
 
         elif self.options.type == 'a':
             #A* search algorithm
             self.f_value = self.cost + self.h # Change this to implement A*!
+            print("A*: ", self.f_value, "Cost: ", self.cost, "Heuristic: ", self.h)
+
 
         else:
             print('Invalid search type (-t) selected: Valid options are g, u, and a')
@@ -310,6 +313,9 @@ def run_iterative_search(start_node):
     This runs an iterative deepening search
     It caps the depth of the search at 40 (no 8-puzzles have solutions this long)
     """
+    ##Threshold for IDA*
+    threshold = 2
+
     #Our initial depth limit
     depth_limit = 1
     
@@ -330,7 +336,7 @@ def run_iterative_search(start_node):
         visited[start_node.puzzle.id()] = True
         
         #Run depth-limited search starting at initial node (which points to initial state)
-        path_length = run_dfs(start_node, depth_limit, visited) 
+        path_length = run_dfs_a(start_node, depth_limit, threshold) 
     
         #See how many nodes we expanded on this iteration and add it to our total
         total_expanded += visited['N']
@@ -407,6 +413,86 @@ def run_dfs(node, depth_limit, visited):
         node.path = node.path[0:-1]        
         # Remove 1 from node's cost
         node.cost = node.cost - 1
+    
+    #Couldn't find a solution here or at any of my successors, so return None
+    #This node is not on a solution path under the depth-limit
+    return None
+
+def run_dfs_a(node, depth_limit, threshold):
+    """
+    Recursive Depth-Limited Search:  
+    
+    Check node to see if it is goal, if it is, print solution and return path length
+    If not and if depth-limit hasn't been reached, recurse on all children
+    """
+    ##visited['N'] = visited['N'] + 1 #Increment our node expansion counter
+
+    # Check to see if this is a goal node
+    if node.puzzle.is_solved():
+        # It is! Print out solution and return solution length
+        print('Iterative Deepening SOLVED THE PUZZLE! SOLUTION = ', node.path)
+        return len(node.path)
+        
+    # Check to see if the depth limit has been reached (number of actions that have been taken)
+    if len(node.path) >= depth_limit:
+        # It has. Return None, signifying that no path was found
+        return None
+    
+    # Generate successors and recurse on them
+    
+    # Get the list of moves we can try from this node's state
+    moves = node.puzzle.get_moves()
+    fVals = []
+    for m in moves:
+        print("Before",node.puzzle)
+        node.puzzle.do_move(m)
+        print("After",node.puzzle)
+
+        node.path = node.path + m
+        node.cost = node.cost + 1
+        node.compute_f_value()
+
+        fVals.append(node.f_value)
+        node.puzzle.undo_move(m)
+        node.path = node.path[0:-1]        
+        node.cost = node.cost - 1
+    # For each possible move
+    minF = min(fVals)
+    print("All F vals:", fVals)
+    print("minFVal",minF)
+    for m in moves:
+        #Execute the move/action
+        node.puzzle.do_move(m)
+        node.compute_f_value()
+
+        if node.f_value <= threshold + minF:
+            #Add this move to the node's path
+            node.path = node.path + m
+            #Add 1 to node's cost
+            node.cost = node.cost + 1
+            #Check to see if we have already visited this node
+            ##if node.puzzle.id() not in visited: 
+                #We haven't. Now we will, so add it to visited
+            ##visited[node.puzzle.id()] = True
+                
+                #Recurse on this new state
+            path_length = run_dfs_a(node, depth_limit, threshold)    
+                
+                #Check to see if a solution was found down this path (return value of None means no)
+            if path_length is not None:
+                    #It was! Return this solution path length to whoever called us
+                return path_length
+                    
+                #Remove this state from the visited list.  We only check for duplicates along current search path
+            ##del visited[node.puzzle.id()]
+
+            # That move didn't lead to a solution, so lets try the next one
+            # First, though, we need to undo the move (to return puzzle to state before we tried that move)
+            node.puzzle.undo_move(m)
+            # Remove that last move we tried from the path
+            node.path = node.path[0:-1]        
+            # Remove 1 from node's cost
+            node.cost = node.cost - 1
     
     #Couldn't find a solution here or at any of my successors, so return None
     #This node is not on a solution path under the depth-limit
